@@ -11,7 +11,7 @@ def obtener_m3u8(url):
 
 def main():
     # URL del canal específico de YouTube que deseas actualizar
-    canal_url = "https://www.youtube.com/watch?v=TU_VIDEO_ID"  # Reemplaza con el ID real
+    canal_url = "https://www.youtube.com/watch?v=OR9MH16MKrg"  # Reemplaza con el ID real
 
     m3u8 = obtener_m3u8(canal_url)
     if m3u8:
