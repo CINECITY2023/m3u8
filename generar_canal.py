@@ -1,7 +1,7 @@
 import subprocess
 
 # URL del canal o video en vivo de YouTube
-url = "https://www.youtube.com/watch?v=OR9MH16MKrg"  # <-- Reemplaza con un enlace válido en vivo
+url = "https://www.youtube.com/watch?v=OR9MH16MKrg/live"  # <-- Reemplaza con un enlace válido en vivo
 
 try:
     # Ejecuta yt-dlp para obtener el enlace M3U8 directo
