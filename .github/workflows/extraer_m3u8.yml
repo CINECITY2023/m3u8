@@ -19,7 +19,7 @@ jobs:
         python extraer_m3u8.py "https://www.youtube.com/watch?v=OR9MH16MKrg"
 
     - name: Guardar resultado como artefacto
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.1.3
       with:
         name: enlace_m3u8
         path: enlace_m3u8.txt
