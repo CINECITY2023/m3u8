@@ -2,14 +2,14 @@ import subprocess
 import sys
 
 if len(sys.argv) < 2:
-    print("Uso: python extraer_m3u8.py URL_DEL_VIDEO")
+    print("Uso: python extraer_m3u8.py https://www.youtube.com/watch?v=OR9MH16MKrg")
     sys.exit(1)
 
 url = sys.argv[1]
 archivo = "enlace_m3u8.txt"
 
 try:
-    resultado = subprocess.check_output(['yt-dlp', '-g', '-f', 'best', url], text=True)
+    resultado = subprocess.check_output(['yt-dlp', '-g', '-f', url], text=True)
     with open(archivo, 'w') as f:
         f.write(resultado.strip() + '\n')
     print(f"✅ Enlace M3U8 guardado en {archivo}")
