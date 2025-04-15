@@ -1,31 +1,23 @@
-import subprocess 
+import subprocess
 
-def obtener_m3u8(url):
-    try:
-        result = subprocess.run(["yt-dlp", "-g", url], capture_output=True, text=True)
-        m3u8_url = result.stdout.strip().split("\n")[-1]
-        return m3u8_url
-    except Exception as e:
-        print(f"Error procesando {url}: {e}")
-        return None
+# URL del canal o video en vivo de YouTube
+url = "https://www.youtube.com/watch?v=OR9MH16MKrg"  # <-- Reemplaza con un enlace válido en vivo
 
-def main():
-    # URL del canal específico de YouTube que deseas actualizar
-    canal_url = "https://www.youtube.com/watch?v=OR9MH16MKrg"  # Reemplaza con el ID real
+try:
+    # Ejecuta yt-dlp para obtener el enlace M3U8 directo
+    result = subprocess.run(["yt-dlp", "-g", url], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-    m3u8 = obtener_m3u8(canal_url)
-    if m3u8:
-        # Guarda el enlace en un archivo .m3u8
-        with open("canal.m3u8", "w", encoding="utf-8") as f:
-            # En este caso, no se requiere encabezado de playlist, solo se guarda el enlace.
-            # Si prefieres el formato de playlist, puedes agregar un encabezado #EXTM3U y
-            # una línea EXTINF, por ejemplo:
-            f.write("#EXTM3U\n")
-            f.write(f"#EXTINF:-1, Canal Específico\n")
-            f.write(m3u8 + "\n")
-        print("Archivo canal.m3u8 generado exitosamente.")
-    else:
+    if result.returncode != 0 or not result.stdout.strip():
         print("Error al generar el enlace m3u8.")
-
-if __name__ == "__main__":
-    main()
+        print("stderr:", result.stderr)
+    else:
+        enlace = result.stdout.strip().split('\n')[-1]  # Obtener la última línea (video)
+        
+        with open("canal.m3u8", "w") as f:
+            f.write("#EXTM3U\n")
+            f.write("#EXTINF:-1, Canal En Vivo\n")
+            f.write(enlace + "\n")
+        
+        print("Archivo canal.m3u8 generado con éxito.")
+except Exception as e:
+    print("Excepción:", e)
