@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Ariel TV</title>
+    <title>Ariel TV Mobile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
@@ -193,20 +193,13 @@
             <h3>Bienvenido</h3>
             <p>Selecciona un canal</p>
         </div>
-
-<button onclick="window.location.href='https://www.youtube.com/'" 
-style="position: absolute; right: 12%; align-items: center; gap: 8px; padding: 7px 12px; cursor: pointer; background-color:#181D22;">
-  
-  <img src="https://brandemia.org/wp-content/uploads/2013/09/youtube_logo_detail.png" 
-       alt="YouTube" width="50">
-</button>
-
         <div class="hora-actual" id="horaActual"></div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script src="https://raw.githubusercontent.com/CINECITY2023/cinecity/refs/heads/cinecity.net/opmeopcambhfimffbomjgemehjkbbmji/26.1.6.8388_0/js/jwplayer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mpegts.js@latest"></script>
+
 
 
 <script>
@@ -216,7 +209,7 @@ let listas = [];
 
 async function cargarListasRemotas() {
     try {
-        const res = await fetch("https://raw.githubusercontent.com/CINECITY2023/cinecity/refs/heads/cinecity.net/scripts-album/PC-lista.txt"); // ← ponés tu txt o json
+        const res = await fetch("https://raw.githubusercontent.com/CINECITY2023/cinecity/refs/heads/cinecity.net/scripts-album/Mobile-lista.txt"); // ← ponés tu txt o json
         const texto = await res.text();
 
         // separar por líneas
@@ -303,48 +296,85 @@ function cargarCanal(url, nombre, logo) {
         `;
     };
 
-    const usarIframe = () => {
+    // ===== VIDEO =====
+    const video = document.createElement("video");
+    video.autoplay = true;
+    video.muted = true;
+    video.controls = true;
+    video.playsInline = true;
+    video.style.width = "100%";
+    video.style.height = "100%";
+
+    // ===== HLS =====
+    if (url.includes(".m3u8")) {
+
+        player.appendChild(video);
+
+        if (Hls.isSupported()) {
+
+            const hls = new Hls();
+            hls.loadSource(url);
+            hls.attachMedia(video);
+
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                video.play();
+            });
+
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+
+            video.src = url;
+            video.play();
+        }
+
+        mostrarInfo();
+        return;
+    }
+
+    // ===== MPEGTS =====
+    if (
+        url.includes("/play/") ||
+        url.includes(":8000/")
+    ) {
+
+        player.appendChild(video);
+
+        if (mpegts.getFeatureList().mseLivePlayback) {
+
+            const tsPlayer = mpegts.createPlayer({
+                type: 'mpegts',
+                isLive: true,
+                url: url
+            });
+
+            tsPlayer.attachMediaElement(video);
+            tsPlayer.load();
+
+            tsPlayer.play().catch(() => {});
+
+            mostrarInfo();
+            return;
+        }
+    }
+
+    // ===== IFRAME =====
     const iframe = document.createElement("iframe");
+
     iframe.src = url;
-	        iframe.allow = "fullscreen; encrypted-media";
+    iframe.allow = "fullscreen; encrypted-media";
+    iframe.allowFullscreen = true;
 
+    player.appendChild(iframe);
 
+    mostrarInfo();
+	
+	
     // 🔒 clave anti-popup
-    iframe.sandbox = "allow-scripts allow-same-origin";
+
 
     iframe.allowFullscreen = true;
 
     player.appendChild(iframe);
     mostrarInfo();
-};
-
-   if (url.includes(".m3u8")) {
-    const video = document.createElement("video");
-    video.autoplay = true;     // ▶️ autoplay
-    video.muted = true;        // 🔇 necesario para que el navegador lo permita
-    video.playsInline = true;
-    video.controls = true;
-    video.loop = true;
-
-    if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-
-        // opcional: asegurar play cuando carga
-        hls.on(Hls.Events.MANIFEST_PARSED, function () {
-            video.play();
-        });
-    } else {
-        video.src = url;
-        video.play();
-    }
-
-    player.appendChild(video);
-    mostrarInfo();
-	} else {
-        usarIframe();
-}
 }
 
 function mostrarGrupos() {
@@ -376,9 +406,10 @@ function crearGrupo(nombre, icono) {
 
 function mostrarCanales() {
     lista.innerHTML = "";
-    const filtrados = canales
-    .filter(c => c.activo !== false)      // ❌ filtra solo los activos
-    .filter(c => grupoActual === "TODOS" ? true : c.grupo === grupoActual);
+   const filtrados = (grupoActual === "TODOS"
+    ? canales
+    : canales.filter(c => c.grupo === grupoActual)
+).filter(c => c.activo);
 
     filtrados.forEach(c => {
         const d = document.createElement("div");
