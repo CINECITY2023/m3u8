@@ -1,446 +1,368 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Ariel TV Mobile</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TV Player - Premium</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    width: 100%;
+    height: 100%;
+    background-color: #0b0e14;
+    color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+}
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            background: black;
-            overflow: hidden;
-            font-family: sans-serif;
-        }
+.container {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow-y: auto;
+    padding: 30px 20px;
+}
 
-        body { display: flex; }
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto 30px auto;
+    text-align: center;
+}
 
-        .sidebar {
-            width: 220px;
-            background: #111;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid #333;
-        }
+.site-title {
+    font-size: 24px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    color: #ffffff;
+}
 
-        .sidebar-header {
-            background: linear-gradient(90deg, #1a0000, #330000);
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+.site-subtitle {
+    font-size: 20px;
+    font-weight: normal;
+    margin-bottom: 25px;
+    color: #ffffff;
+}
 
-        .sidebar-header img { margin-left: 40px; width: 100px; height: 40px; }
+.controls-row {
+    max-width: 900px;
+    margin: 0 auto 20px auto;
+    display: block;
+    text-align: center;
+}
 
-        .sidebar-header h2 { color: white; font-size: 18px; }
+.search-box-container {
+    margin-bottom: 15px;
+    position: relative;
+}
 
-        .grupo-titulo {
-            padding: 10px;
-            background: #181818;
-            color: #00ffcc;
-            text-align: center;
-            border-bottom: 1px solid #333;
-            font-size: 14px;
-        }
+.search-box-container input {
+    width: 100%;
+    max-width: 800px;
+    padding: 14px 20px;
+    border: 1px solid #1a2233;
+    border-radius: 8px;
+    background: #0f141c;
+    color: #ffffff;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+}
 
-        .lista-canales {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px;
-        }
+.search-box-container input:focus {
+    border-color: #0099ff;
+}
 
-        .canal {
-            background: #222;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            color: #fff;
-            cursor: pointer;
-            border: 1px solid #333;
-        }
+.playlist-selector-container {
+    margin-bottom: 25px;
+}
 
-        .canal:hover { background: #333; }
+.playlist-selector-container select {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px 15px;
+    border: 1px solid #1a2233;
+    border-radius: 8px;
+    background: #0f141c;
+    color: #ffffff;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+}
 
-        .canal span { flex: 1; font-size: 14px; }
+.channels-counter {
+    font-size: 16px;
+    color: #ffffff;
+    margin-bottom: 25px;
+    text-align: center;
+    font-weight: normal;
+}
 
-        .canal img {
-            width: 32px;
-            height: 32px;
-            margin-left: auto;
-        }
+/* Contenedor principal de los canales */
+#channelList {
+    max-width: 1200px;
+    margin: 0 auto;
+}
 
-        .canal.activo {
-            background: linear-gradient(90deg, #00ffcc33, #00ffcc11);
-            border: 1px solid #00ffcc;
-            box-shadow: 0 0 8px #00ffcc55;
-        }
+.group-section {
+    margin-bottom: 35px;
+    display: block;
+    clear: both;
+}
 
-        .canal.activo span {
-            color: #00ffcc;
-            font-weight: bold;
-        }
+.group-title {
+    font-size: 18px;
+    color: #ffd700;
+    font-weight: bold;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #1a2233;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
 
-        .player {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+.grid-channels {
+    display: block;
+    text-align: center;
+}
 
-        .video-container {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            background: black;
-        }
+/* Tarjeta de canal basada en la imagen de referencia */
+.channel-card {
+    display: inline-block;
+    width: 220px;
+    background: #0f141c;
+    border: 1px solid #1a2233;
+    border-radius: 12px;
+    padding: 20px 15px 15px 15px;
+    margin: 10px;
+    text-align: center;
+    vertical-align: top;
+    transition: transform 0.2s, border-color 0.2s;
+}
 
-        .video-container video,
-        .video-container iframe {
-            width: 100%;
-            height: 100%;
-            display: block;
-            border: none;
-            object-fit: contain;
-        }
+.channel-card:hover {
+    transform: translateY(-4px);
+    border-color: #22314d;
+}
 
-        .barra-grupos {
-            height: 50px;
-            background: #0d0d0d;
-            border-top: 1px solid #333;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 0 10px;
-            overflow-x: auto;
-        }
+.country-tag {
+    display: inline-block;
+    background: #ffffff;
+    color: #000000;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
 
-        .grupo-icono {
-            min-width: 40px;
-            height: 30px;
-            background: #222;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 1px solid #333;
-            font-size: 18px;
-        }
+.logo-wrapper {
+    height: 75px;
+    display: block;
+    margin-bottom: 15px;
+    text-align: center;
+}
 
-        .grupo-icono.active { background: #00ffcc; }
+.channel-logo {
+    max-width: 110px;
+    max-height: 65px;
+    object-fit: contain;
+    vertical-align: middle;
+}
 
-        .zona-inferior {
-            height: 80px;
-            background: #111;
-            border-top: 1px solid #333;
-            padding: 15px;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+.channel-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
-        .logo-inferior {
-            width: 60px;
-            height: 60px;
-            display: none;
-        }
+.btn-watch {
+    display: block;
+    width: 100%;
+    background: #0094ec;
+    color: #ffffff;
+    border: none;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+}
 
-        .info-texto h3 { font-size: 18px; }
+.btn-watch:hover {
+    background: #0080cc;
+}
 
-        .info-texto p {
-            font-size: 14px;
-            opacity: 0.7;
-        }
+.loading, .error {
+    padding: 40px;
+    text-align: center;
+    font-size: 16px;
+    color: #8a99ad;
+}
 
-        .hora-actual {
-            margin-left: auto;
-            font-size: 22px;
-            color: #00ffcc;
-        }
-    </style>
-
-<link rel="icon" href="logo.png" type="image/x-icon">
-
+.error {
+    color: #ff4d4d;
+}
+</style>
 </head>
-
 <body>
 
-<div class="sidebar">
-
-    <div class="sidebar-header">
-        <img src="https://raw.githubusercontent.com/CINECITY2023/cinecity/refs/heads/cinecity.net/logos/LOGO2.png" alt="Logo">
-       
+<div class="container">
+    <div class="header-container">
+        <div class="site-title">TVLIBRE-Premium</div>
+        <div class="site-subtitle">Canales online en vivo y en directo Gratis</div>
     </div>
- <select id="selectorListas" style="margin:10px; padding:8px; background:#222; color:white; border-radius:8px; border:none;"></select>
-    <div class="grupo-titulo" id="grupoTitulo">Todos los canales</div>
-    <div class="lista-canales" id="listaCanales"></div>
-</div>
 
-<div class="player">
-    <div class="video-container" id="player"></div>
-    <div class="barra-grupos" id="barraGrupos"></div>
-
-    <div class="zona-inferior">
-        <img id="logoInferior" class="logo-inferior">
-        <div class="info-texto" id="infoTexto">
-            <h3>Bienvenido</h3>
-            <p>Selecciona un canal</p>
+    <div class="controls-row">
+        <div class="search-box-container">
+            <input type="text" id="search" placeholder="Buscar canal o etiqueta..">
         </div>
-        <div class="hora-actual" id="horaActual"></div>
+        <div class="playlist-selector-container">
+            <select id="playlistSelect">
+                <option>Cargando listas de canales...</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="counterContainer" class="channels-counter" style="display:none;">
+        <span id="totalCount">0</span> canales
+    </div>
+
+    <div id="channelList">
+        <div class="loading">Cargando canales y categorías...</div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/mpegts.js@latest"></script>
-
-
 
 <script>
+const LISTA_URL = "https://raw.githubusercontent.com/CINECITY2023/cinecity/refs/heads/cinecity.net/scripts-album/test.txt";
+let jsonActual = "", listasDisponibles = [], canalesGlobal = [], timerBusqueda = null;
 
-
-let listas = [];
-
-async function cargarListasRemotas() {
+async function cargarListas() {
     try {
-        const res = await fetch("https://raw.githubusercontent.com/CINECITY2023/cinecity/refs/heads/cinecity.net/scripts-album/Mobile-lista.txt"); // ← ponés tu txt o json
-        const texto = await res.text();
+        const response = await fetch(LISTA_URL, { cache: "no-store" });
+        const texto = await response.text();
+        listasDisponibles = texto.split("\n").map(l => l.trim()).filter(Boolean).map(linea => {
+            const p = linea.split("|");
+            return p.length >= 2 ? { nombre: p[0], url: p[1] } : null;
+        }).filter(Boolean);
 
-        // separar por líneas
-        listas = texto.split("\n").map(l => l.trim()).filter(l => l);
+        const select = document.getElementById("playlistSelect");
+        select.innerHTML = "";
+        listasDisponibles.forEach((lista, index) => {
+            const option = document.createElement("option");
+            option.value = lista.url;
+            option.textContent = lista.nombre;
+            select.appendChild(option);
+            if (index === 0) jsonActual = lista.url;
+        });
 
-        mostrarListas();
-        cargarLista(listas[0]);
+        select.addEventListener("change", function() {
+            jsonActual = this.value;
+            localStorage.setItem("ultimaLista", jsonActual);
+            loadChannels();
+        });
 
+        loadChannels();
     } catch (e) {
-        console.error("Error cargando listas:", e);
+        console.error(e);
+        document.getElementById("channelList").innerHTML = '<div class="error">Error al conectar con el servidor de listas</div>';
     }
 }
 
+async function loadChannels() {
+    const list = document.getElementById("channelList");
+    list.innerHTML = '<div class="loading">Cargando canales...</div>';
+    try {
+        const response = await fetch(jsonActual, { cache: "no-store" });
+        const canales = await response.json();
+        canalesGlobal = canales.filter(c => c.activo);
+        
+        // Actualizar contador total
+        const counter = document.getElementById("counterContainer");
+        const totalCount = document.getElementById("totalCount");
+        totalCount.textContent = canalesGlobal.length;
+        counter.style.display = "block";
 
-const selector = document.getElementById("selectorListas");
+        renderChannels(canalesGlobal);
+    } catch (e) {
+        list.innerHTML = '<div class="error">Error cargando canales de esta lista</div>';
+    }
+}
 
-selector.addEventListener("change", (e) => {
-    cargarLista(e.target.value);
+function renderChannels(canales) {
+    const list = document.getElementById("channelList");
+    const fragment = document.createDocumentFragment();
+    const grupos = {};
+
+    canales.forEach(c => {
+        const g = c.grupo || "Canales generales";
+        (grupos[g] ||= []).push(c);
+    });
+
+    Object.keys(grupos).forEach(grupo => {
+        const section = document.createElement("div");
+        section.className = "group-section";
+
+        const titulo = document.createElement("div");
+        titulo.className = "group-title";
+        titulo.textContent = grupo;
+        section.appendChild(titulo);
+
+        const grid = document.createElement("div");
+        grid.className = "grid-channels";
+
+        grupos[grupo].forEach(canal => {
+            const card = document.createElement("div");
+            card.className = "channel-card";
+            
+            // Reutiliza la propiedad de grupo o por defecto asigna el tag "Argentina" u "Online"
+            const tagText = canal.grupo ? canal.grupo.split(" ")[0] : "Online";
+
+            card.innerHTML = `
+                <div class="country-tag">${tagText}</div>
+                <div class="logo-wrapper">
+                    <img class="channel-logo" loading="lazy" src="${canal.logo}" alt="${canal.nombre}" onerror="this.src=''">
+                </div>
+                <div class="channel-name">${canal.nombre}</div>
+                <button class="btn-watch">Ver canal</button>
+            `;
+
+            card.addEventListener("click", () => {
+                window.open(canal.url, "_blank");
+            });
+
+            grid.appendChild(card);
+        });
+
+        section.appendChild(grid);
+        fragment.appendChild(section);
+    });
+
+    list.replaceChildren(fragment);
+}
+
+document.getElementById("search").addEventListener("input", function() {
+    clearTimeout(timerBusqueda);
+    const texto = this.value.toLowerCase();
+    timerBusqueda = setTimeout(() => {
+        const filtrados = canalesGlobal.filter(c => c.nombre.toLowerCase().includes(texto));
+        document.getElementById("totalCount").textContent = filtrados.length;
+        renderChannels(filtrados);
+    }, 200);
 });
 
-function mostrarListas() {
-    selector.innerHTML = "";
-
-    listas.forEach((url, index) => {
-        const option = document.createElement("option");
-
-        const nombre = url.split("/").pop().replace(".json", "");
-
-        option.value = url;
-        option.textContent = nombre.toUpperCase();
-
-        if (index === 0) option.selected = true;
-
-        selector.appendChild(option);
-    });
-}
-
-let canales = [];
-
-async function cargarLista(url) {
-    try {
-        const res = await fetch(url);
-        canales = await res.json();
-
-        grupoActual = "TODOS";
-
-        mostrarGrupos();
-        mostrarCanales();
-
-    } catch (e) {
-        console.error("Error cargando lista:", e);
-    }
-}
-
-let grupoActual = "TODOS";
-
-const lista = document.getElementById("listaCanales");
-const player = document.getElementById("player");
-const barraGrupos = document.getElementById("barraGrupos");
-const grupoTitulo = document.getElementById("grupoTitulo");
-const logoInferior = document.getElementById("logoInferior");
-const infoTexto = document.getElementById("infoTexto");
-const horaActual = document.getElementById("horaActual");
-
-function marcarCanalActivo(div) {
-    document.querySelectorAll(".canal").forEach(c => c.classList.remove("activo"));
-    div.classList.add("activo");
-}
-
-function cargarCanal(url, nombre, logo) {
-    player.innerHTML = "";
-
-    const mostrarInfo = () => {
-        if (logo) {
-            logoInferior.src = logo;
-            logoInferior.style.display = "block";
-        } else {
-            logoInferior.style.display = "none";
-        }
-
-        infoTexto.innerHTML = `
-            <h3>${nombre}</h3>
-            <p>${url.split("/").slice(0, 3).join("/")}</p>
-        `;
-    };
-
-    // ===== VIDEO =====
-    const video = document.createElement("video");
-    video.autoplay = true;
-    video.muted = true;
-    video.controls = true;
-    video.playsInline = true;
-    video.style.width = "100%";
-    video.style.height = "100%";
-
-    // ===== HLS =====
-    if (url.includes(".m3u8")) {
-
-        player.appendChild(video);
-
-        if (Hls.isSupported()) {
-
-            const hls = new Hls();
-            hls.loadSource(url);
-            hls.attachMedia(video);
-
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                video.play();
-            });
-
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-
-            video.src = url;
-            video.play();
-        }
-
-        mostrarInfo();
-        return;
-    }
-
-    // ===== MPEGTS =====
-    if (
-        url.includes("/play/") ||
-        url.includes(":8000/")
-    ) {
-
-        player.appendChild(video);
-
-        if (mpegts.getFeatureList().mseLivePlayback) {
-
-            const tsPlayer = mpegts.createPlayer({
-                type: 'mpegts',
-                isLive: true,
-                url: url
-            });
-
-            tsPlayer.attachMediaElement(video);
-            tsPlayer.load();
-
-            tsPlayer.play().catch(() => {});
-
-            mostrarInfo();
-            return;
-        }
-    }
-
-    // ===== IFRAME =====
-    const iframe = document.createElement("iframe");
-
-    iframe.src = url;
-    iframe.allow = "fullscreen; encrypted-media";
-    iframe.allowFullscreen = true;
-
-    player.appendChild(iframe);
-
-    mostrarInfo();
-	
-	
-    // 🔒 clave anti-popup
-
-
-    iframe.allowFullscreen = true;
-
-    player.appendChild(iframe);
-    mostrarInfo();
-}
-
-function mostrarGrupos() {
-    barraGrupos.innerHTML = "";
-    crearGrupo("TODOS", "📺");
-
-    const map = {};
-    canales.forEach(c => map[c.grupo] = c.icono);
-
-    Object.entries(map).forEach(([g, i]) => crearGrupo(g, i));
-    barraGrupos.firstChild.classList.add("active");
-}
-
-function crearGrupo(nombre, icono) {
-    const d = document.createElement("div");
-    d.className = "grupo-icono";
-    d.textContent = icono;
-
-    d.onclick = () => {
-        document.querySelectorAll(".grupo-icono").forEach(x => x.classList.remove("active"));
-        d.classList.add("active");
-        grupoActual = nombre;
-        grupoTitulo.textContent = nombre === "TODOS" ? "Todos los canales" : nombre;
-        mostrarCanales();
-    };
-
-    barraGrupos.appendChild(d);
-}
-
-function mostrarCanales() {
-    lista.innerHTML = "";
-   const filtrados = (grupoActual === "TODOS"
-    ? canales
-    : canales.filter(c => c.grupo === grupoActual)
-).filter(c => c.activo);
-
-    filtrados.forEach(c => {
-        const d = document.createElement("div");
-        d.className = "canal";
-        d.innerHTML = `
-            <span>${c.nombre}</span>
-            ${c.logo ? `<img src="${c.logo}">` : ""}
-        `;
-        d.onclick = () => {
-            marcarCanalActivo(d);
-            cargarCanal(c.url, c.nombre, c.logo);
-        };
-        lista.appendChild(d);
-    });
-
-    if (filtrados[0]) {
-        marcarCanalActivo(lista.firstChild);
-        cargarCanal(filtrados[0].url, filtrados[0].nombre, filtrados[0].logo);
-    }
-}
-
-setInterval(() => {
-    const d = new Date();
-    horaActual.textContent =
-        `${String(d.getHours()).padStart(2, "0")}:` +
-        `${String(d.getMinutes()).padStart(2, "0")}:` +
-        `${String(d.getSeconds()).padStart(2, "0")}`;
-}, 1000);
-
-cargarListasRemotas();
+cargarListas();
 </script>
-
 </body>
 </html>
