@@ -150,6 +150,18 @@ html, body {
     border-color: #22314d;
 }
 
+/* --- NUEVO ESTILO: ETIQUETA ROJA EXCLUSIVA --- */
+.red-label {
+    display: block;
+    color: #b8ad8e;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+    text-transform: lowercase;
+    min-height: 14px; /* Mantiene la simetría si un canal no tiene etiqueta */
+}
+
 .country-tag {
     display: inline-block;
     background: #ffffff;
@@ -326,10 +338,13 @@ function renderChannels(canales) {
             const card = document.createElement("div");
             card.className = "channel-card";
             
-            // Reutiliza la propiedad de grupo o por defecto asigna el tag "Argentina" u "Online"
             const tagText = canal.grupo ? canal.grupo.split(" ")[0] : "Online";
+            
+            // Evaluamos si el canal trae la propiedad "etiqueta" en el JSON, de lo contrario la dejamos vacía.
+            const etiquetaHTML = canal.etiqueta ? `<div class="red-label">${canal.etiqueta}</div>` : `<div class="red-label"></div>`;
 
             card.innerHTML = `
+                ${etiquetaHTML}
                 <div class="country-tag">${tagText}</div>
                 <div class="logo-wrapper">
                     <img class="channel-logo" loading="lazy" src="${canal.logo}" alt="${canal.nombre}" onerror="this.src=''">
@@ -356,7 +371,12 @@ document.getElementById("search").addEventListener("input", function() {
     clearTimeout(timerBusqueda);
     const texto = this.value.toLowerCase();
     timerBusqueda = setTimeout(() => {
-        const filtrados = canalesGlobal.filter(c => c.nombre.toLowerCase().includes(texto));
+        // Modificado para que busque tanto por el NOMBRE del canal como por su ETIQUETA
+        const filtrados = canalesGlobal.filter(c => {
+            const nombreCoincide = c.nombre.toLowerCase().includes(texto);
+            const etiquetaCoincide = c.etiqueta ? c.etiqueta.toLowerCase().includes(texto) : false;
+            return nombreCoincide || etiquetaCoincide;
+        });
         document.getElementById("totalCount").textContent = filtrados.length;
         renderChannels(filtrados);
     }, 200);
